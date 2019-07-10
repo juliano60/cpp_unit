@@ -23,6 +23,10 @@ TEST_F( SoundexEncoding, PadsWithZeroToEnsureThreeDigits )
 
 TEST_F( SoundexEncoding, ReplacesConsonantsWithAppropriateDigits )
 {
-    auto encoded = soundex_.encode( "Ab" );
-    ASSERT_THAT( encoded, Eq( "A100" ) );
+    ASSERT_THAT( soundex_.encode( "Ax" ), Eq( "A200" ) );
+}
+
+TEST_F( SoundexEncoding, IgnoresNonAlphabetics )
+{
+    ASSERT_THAT( soundex_.encode( "A#" ), Eq( "A000" ) );
 }

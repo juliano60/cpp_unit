@@ -2,6 +2,7 @@
 #include <string>
 #include <cassert>
 #include <cstddef>
+#include <unordered_map>
 
 namespace
 {
@@ -47,7 +48,7 @@ private:
 
         if( input.length() > 1 )
         {
-            return encoded_digit();
+            return encoded_digit( input[1] );
         }
         else
         {
@@ -55,8 +56,37 @@ private:
         }
     }
 
-    std::string encoded_digit() const
+    std::string encoded_digit( char c ) const
     {
-        return "1";
+        static const std::unordered_map< char, std::string > encoding_tbl = {
+                std::make_pair( 'b', "1" ),
+                std::make_pair( 'f', "1" ),
+                std::make_pair( 'p', "1" ),
+                std::make_pair( 'v', "1" ),
+                std::make_pair( 'c', "2" ),
+                std::make_pair( 'g', "2" ),
+                std::make_pair( 'k', "2" ),
+                std::make_pair( 'q', "2" ),
+                std::make_pair( 's', "2" ),
+                std::make_pair( 'x', "2" ),
+                std::make_pair( 'z', "2" ),
+                std::make_pair( 'd', "3" ),
+                std::make_pair( 't', "3" ),
+                std::make_pair( 'l', "4" ),
+                std::make_pair( 'm', "5" ),
+                std::make_pair( 'n', "5" ),
+                std::make_pair( 'b', "6" ),
+        };
+
+        auto it = encoding_tbl.find( c );
+
+        if( it != encoding_tbl.end() )
+        {
+            return it->second;
+        }
+        else
+        {
+            return "";
+        }  
     }
 };
