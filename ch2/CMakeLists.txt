@@ -13,7 +13,7 @@ find_package( GMock REQUIRED )
 find_package( Boost REQUIRED )
 
 ## add executable
-add_executable( exo1 main.cpp SoundexTest.cpp )
+add_executable( exo1 main.cpp SoundexTest.cpp Soundex.h )
 
 target_link_libraries( exo1 
             ${GMOCK_LIBRARIES}
