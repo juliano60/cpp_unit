@@ -30,3 +30,13 @@ TEST_F( SoundexEncoding, IgnoresNonAlphabetics )
 {
     ASSERT_THAT( soundex_.encode( "A#" ), Eq( "A000" ) );
 }
+
+TEST_F( SoundexEncoding, ReplacesMultipleConsonantsWithDigits )
+{
+    ASSERT_THAT( soundex_.encode( "Acdl" ), Eq( "A234" ) );
+}
+
+TEST_F( SoundexEncoding, LimitsLengthToFourCharacters )
+{
+    ASSERT_THAT( soundex_.encode( "Dcdlb" ).size(), Eq( 4u ) );
+}

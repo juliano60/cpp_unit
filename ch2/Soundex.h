@@ -19,10 +19,17 @@ public:
             return input;
         }
 
-        return zero_pad( head( input ) + encoded_digits( input ) );
+        return zero_pad( head( input ) + encoded_digits( tail( input ) ) );
     }
 
 private:
+    std::string tail( const std::string& input ) const
+    {
+        assert( !input.empty() );
+
+        return input.substr( 1 );
+    }
+
     std::string head( const std::string& input ) const
     {
         assert( !input.empty() );
@@ -44,16 +51,24 @@ private:
 
     std::string encoded_digits( const std::string& input ) const
     {
-        assert( !input.empty() );
+        std::string res;
 
-        if( input.length() > 1 )
+        for( auto& c: input )
         {
-            return encoded_digit( input[1] );
+            if( is_complete( res ) )
+            {
+                break;
+            }
+
+            res += encoded_digit( c );
         }
-        else
-        {
-            return "";
-        }
+
+        return res;
+    }
+
+    bool is_complete( const std::string& input ) const
+    {
+        return input.size() == max_code_length - 1;
     }
 
     std::string encoded_digit( char c ) const
