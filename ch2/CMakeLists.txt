@@ -17,4 +17,4 @@ add_executable( exo1 main.cpp SoundexTest.cpp )
 
 target_link_libraries( exo1 
             ${GMOCK_LIBRARIES}
- )
+)
