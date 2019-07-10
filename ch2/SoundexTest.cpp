@@ -40,3 +40,22 @@ TEST_F( SoundexEncoding, LimitsLengthToFourCharacters )
 {
     ASSERT_THAT( soundex_.encode( "Dcdlb" ).size(), Eq( 4u ) );
 }
+
+TEST_F( SoundexEncoding, DropsVowelLikeLetters )
+{
+    ASSERT_THAT( soundex_.encode( "BAeIoUyHwcdl"), Eq( "B234" ) );
+}
+
+TEST_F( SoundexEncoding, CombinesDuplicateLetters )
+{
+    ASSERT_THAT( soundex_.encoded_digit( 'b' ), Eq( soundex_.encoded_digit( 'f' ) ) );
+    ASSERT_THAT( soundex_.encoded_digit( 'c' ), Eq( soundex_.encoded_digit( 'g' ) ) );
+    ASSERT_THAT( soundex_.encoded_digit( 'd' ), Eq( soundex_.encoded_digit( 't' ) ) );
+
+    ASSERT_THAT( soundex_.encode( "Abfcgdt" ), Eq( "A123" ) );
+}
+
+TEST_F( SoundexEncoding, UppercasesFirstLetter )
+{
+    ASSERT_THAT( soundex_.encode( "abcd" ), StartsWith( "A" ) );
+}

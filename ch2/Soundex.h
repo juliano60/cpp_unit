@@ -3,10 +3,12 @@
 #include <cassert>
 #include <cstddef>
 #include <unordered_map>
+#include <cctype>
 
 namespace
 {
-    constexpr size_t max_code_length { 4 };
+    constexpr size_t max_code_length{ 4 };
+    const std::string not_a_digit{ "*" };
 }
 
 class Soundex
@@ -19,56 +21,7 @@ public:
             return input;
         }
 
-        return zero_pad( head( input ) + encoded_digits( tail( input ) ) );
-    }
-
-private:
-    std::string tail( const std::string& input ) const
-    {
-        assert( !input.empty() );
-
-        return input.substr( 1 );
-    }
-
-    std::string head( const std::string& input ) const
-    {
-        assert( !input.empty() );
-
-        return input.substr( 0, 1 );
-    }
-
-    std::string zero_pad( const std::string& input ) const
-    {
-        std::string res = input;
-
-        for( size_t i = input.size(); i < max_code_length; ++i )
-        {
-            res += '0';
-        }
-        
-        return res;
-    } 
-
-    std::string encoded_digits( const std::string& input ) const
-    {
-        std::string res;
-
-        for( auto& c: input )
-        {
-            if( is_complete( res ) )
-            {
-                break;
-            }
-
-            res += encoded_digit( c );
-        }
-
-        return res;
-    }
-
-    bool is_complete( const std::string& input ) const
-    {
-        return input.size() == max_code_length - 1;
+        return zero_pad( head( to_upper_first( input  ) ) + encoded_digits( tail( input ) ) );
     }
 
     std::string encoded_digit( char c ) const
@@ -101,7 +54,83 @@ private:
         }
         else
         {
-            return "";
+            return not_a_digit;
         } 
+    }
+
+private:
+    std::string to_upper_first( const std::string& input ) const
+    {
+        assert( !input.empty() );
+
+        std::string res { input };
+
+        res[0] = std::toupper( res[0] );
+
+        return res;
+    }
+
+    std::string encoded_digits( const std::string& input ) const
+    {
+        std::string res;
+
+        for( auto& c: input )
+        {
+            if( is_complete( res ) )
+            {
+                break;
+            }
+
+            auto digit = encoded_digit( c );
+            if( digit != not_a_digit && digit != last_digit( res ) )
+            {
+                res += digit;
+            }
+        }
+
+        return res;
+    }
+
+    std::string last_digit( const std::string& input ) const
+    {
+        if( input.empty() )
+        {
+            return "";
+        }
+        else
+        {
+            return input.substr( input.size() - 1 );
+        }
+    }
+
+    std::string tail( const std::string& input ) const
+    {
+        assert( !input.empty() );
+
+        return input.substr( 1 );
+    }
+
+    std::string head( const std::string& input ) const
+    {
+        assert( !input.empty() );
+
+        return input.substr( 0, 1 );
+    }
+
+    std::string zero_pad( const std::string& input ) const
+    {
+        std::string res = input;
+
+        for( size_t i = input.size(); i < max_code_length; ++i )
+        {
+            res += '0';
+        }
+        
+        return res;
+    } 
+
+    bool is_complete( const std::string& input ) const
+    {
+        return input.size() == max_code_length - 1;
     }
 };
