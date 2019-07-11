@@ -59,3 +59,18 @@ TEST_F( SoundexEncoding, UppercasesFirstLetter )
 {
     ASSERT_THAT( soundex_.encode( "abcd" ), StartsWith( "A" ) );
 }
+
+TEST_F( SoundexEncoding, IgnoresCasingWhenEncodingConsonants )
+{
+    ASSERT_THAT( soundex_.encode( "BCDL" ), Eq( soundex_.encode( "Bcdl" ) ) );
+}
+
+TEST_F( SoundexEncoding, CombinesDuplicateCodesWhen2ndLetterDuplicates1st )
+{
+    ASSERT_THAT( soundex_.encode( "Bbcd" ), Eq( "B230" ) );
+}
+
+TEST_F( SoundexEncoding, DoesNotCombineDuplicateCodesSeparatedByVowels )
+{
+    ASSERT_THAT( soundex_.encode( "Jbob" ), Eq( "J110" ) );
+}

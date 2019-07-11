@@ -4,11 +4,19 @@
 #include <cstddef>
 #include <unordered_map>
 #include <cctype>
+#include <algorithm>
 
 namespace
 {
     constexpr size_t max_code_length{ 4 };
     const std::string not_a_digit{ "*" };
+
+    bool is_vowel( char p )
+    {
+        static const std::string vowells{ "aeiouy" };
+
+        return std::find( vowells.begin(), vowells.end(), p ) != vowells.end();
+    }
 }
 
 class Soundex
@@ -21,7 +29,7 @@ public:
             return input;
         }
 
-        return zero_pad( head( to_upper_first( input  ) ) + encoded_digits( tail( input ) ) );
+        return zero_pad( head( to_upper_first( input  ) ) + tail( encoded_digits( input ) ) );
     }
 
     std::string encoded_digit( char c ) const
@@ -43,7 +51,7 @@ public:
                 std::make_pair( 'l', "4" ),
                 std::make_pair( 'm', "5" ),
                 std::make_pair( 'n', "5" ),
-                std::make_pair( 'b', "6" ),
+                std::make_pair( 'r', "6" ),
         };
 
         auto it = encoding_tbl.find( c );
@@ -72,23 +80,44 @@ private:
 
     std::string encoded_digits( const std::string& input ) const
     {
-        std::string res;
+        assert( !input.empty() );
 
-        for( auto& c: input )
+        std::string encoding;
+        encodeHead( encoding, input );
+        encodeTail( encoding, input );
+
+        return encoding;
+    }
+
+    void encodeHead( std::string& encoding, const std::string& input ) const
+    {
+        encoding = encoded_digit( std::tolower( input.front() ) );
+    }
+
+    void encodeTail( std::string& encoding, const std::string& input ) const
+    { 
+        for( size_t i = 1, e = input.size(); i < e; ++i )
         {
-            if( is_complete( res ) )
+            if( is_complete( encoding ) )
             {
                 break;
             }
 
-            auto digit = encoded_digit( c );
-            if( digit != not_a_digit && digit != last_digit( res ) )
+            encodeLetter( encoding, input[ i ],  input[ i - 1 ] );
+        }
+    }
+
+    void encodeLetter( std::string& encoding, char c, char p ) const
+    {
+        auto digit = encoded_digit( std::tolower( c ) );
+        if( digit != not_a_digit )
+        {
+            if( ( digit != last_digit( encoding ) ) || 
+                    ( digit == last_digit( encoding ) && is_vowel( std::tolower( p ) ) ) )
             {
-                res += digit;
+                encoding += digit;
             }
         }
-
-        return res;
     }
 
     std::string last_digit( const std::string& input ) const
@@ -105,9 +134,14 @@ private:
 
     std::string tail( const std::string& input ) const
     {
-        assert( !input.empty() );
-
-        return input.substr( 1 );
+        if( input.empty() )
+        {
+            return "";
+        }
+        else
+        {
+            return input.substr( 1 );
+        }
     }
 
     std::string head( const std::string& input ) const
@@ -131,6 +165,6 @@ private:
 
     bool is_complete( const std::string& input ) const
     {
-        return input.size() == max_code_length - 1;
+        return input.size() == max_code_length;
     }
 };
